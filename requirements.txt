@@ -10,3 +10,4 @@ num2words>=0.5,<0.6
 django-storages>=1.14
 cloudinary>=1.41
 whitenoise>=6.6
+gunicorn>=23.0,<24
