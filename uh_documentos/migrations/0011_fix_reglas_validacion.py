@@ -26,7 +26,7 @@ def rollback(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("uh_documentos", "0009_fix_tipos_categoria"),
+        ("uh_documentos", "0010_alter_tipodocumento_categoria"),
     ]
 
     operations = [
