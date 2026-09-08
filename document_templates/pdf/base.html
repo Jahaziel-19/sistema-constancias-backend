@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}{{ tipo_documento }}{% endblock %}</title>
+<link rel="icon" href="data:," />
+<style>
+  html,body{margin:0;padding:0;background:#ffffff;font-family:"Times New Roman","Georgia",serif;color:#1b1b1b;font-size:11pt;line-height:1.45;}
+  .page{
+    width:8.5in; min-height:11in; padding:0.75in 0.75in;
+    position:relative;
+    background:#ffffff;
+  }
+  @page { size: letter; margin: 0; }
+  @media print{
+    html,body{background:#fff;}
+    .page{box-shadow:none;margin:0;padding:0.75in;}
+  }
+
+  .border-out{
+    border:2.2pt solid #a9822f; padding:10pt;
+    background:#ffffff;
+  }
+  .border-in{
+    border:0.8pt solid #1c3660; padding:26pt 28pt;
+    background:#ffffff;
+  }
+  .watermark{
+    position:absolute; left:0; top:43%; width:100%; text-align:center;
+    color:#1c3660; opacity:0.05; font-size:96pt; font-weight:700; letter-spacing:4pt;
+  }
+  .side-label{
+    position:absolute; left:-12pt; top:52%; width:20pt;
+    color:#a9822f; font-weight:700; letter-spacing:6pt; font-size:11pt; text-align:center;
+  }
+  .side-label .rot{
+    display:inline-block;
+    transform:rotate(-90deg);
+    -webkit-transform:rotate(-90deg);
+    white-space:nowrap;
+  }
+
+  table.hdr{width:100%; border-collapse:collapse; margin-bottom:16pt;}
+  table.hdr td{vertical-align:middle;}
+  .seal{
+    width:72pt; height:72pt; border-radius:36pt;
+    border:2.5pt solid #a9822f;
+    background:#1c3660;
+    color:#d7b45c; text-align:center; padding:10pt 6pt; font-size:8pt; font-weight:700; line-height:1.1;
+  }
+  .hdr-name{text-align:center;}
+  .hdr-name h1{margin:0; font-family:"Helvetica","Trebuchet MS",sans-serif; font-size:18pt; color:#1c3660; letter-spacing:1pt; text-transform:uppercase; font-weight:700;}
+  .hdr-name h2{margin:4pt 0 0; font-family:"Helvetica","Trebuchet MS",sans-serif; font-size:10.5pt; font-weight:700; color:#a9822f; letter-spacing:3pt; text-transform:uppercase;}
+  .hdr-name .clave{margin-top:4pt; font-size:8pt; color:#555;}
+  .hdr-doc-type{text-align:right; font-family:"Helvetica","Trebuchet MS",sans-serif; font-size:9pt; color:#7a1f1f;}
+  .hdr-doc-type b{display:block; font-size:11pt; color:#1c3660; letter-spacing:0.5pt; margin-bottom:3pt;}
+
+  .lugar-fecha{text-align:right; font-style:italic; margin:6pt 0 18pt; font-size:11pt;}
+
+  .titulo{
+    text-align:center; margin:0 0 26pt; padding:8pt 0;
+    border-top:1pt solid #a9822f; border-bottom:1pt solid #a9822f;
+  }
+  .titulo span{
+    font-family:"Helvetica","Trebuchet MS",sans-serif; font-weight:700; color:#1c3660;
+    letter-spacing:4pt; font-size:13pt; text-transform:uppercase;
+  }
+
+  .destinatario{font-family:"Helvetica","Trebuchet MS",sans-serif; font-weight:700; letter-spacing:2pt; color:#1c3660; margin-bottom:22pt; font-size:11pt; text-transform:uppercase;}
+
+  .cuerpo{text-align:justify; font-size:12pt; line-height:1.8;}
+  .cuerpo b{color:#1c3660; font-weight:700;}
+  .cuerpo .marca{background:#fff7d9; padding:0 3pt; border-bottom:1pt solid #a9822f; color:#1b1b1b; font-weight:700;}
+
+  table.datos{width:100%; border-collapse:collapse; margin:22pt 0; background:#fbf7ec; border:0.7pt solid #c9bd9c;}
+  table.datos td{padding:5pt 10pt; font-size:10.5pt; border-bottom:0.5pt dotted #b6ab8a;}
+  table.datos td.lbl{
+    font-family:"Helvetica","Trebuchet MS",sans-serif; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.4pt; color:#1c3660; font-size:9pt; width:38%;
+  }
+
+  .cierre{text-align:center; font-style:italic; margin-top:18pt; font-size:11pt;}
+
+  table.ftr{width:100%; border-collapse:collapse; margin-top:38pt; border-top:1pt solid #1c3660; padding-top:8pt;}
+  table.ftr td{vertical-align:top;}
+  .firma{text-align:center;}
+  .firma .linea{border-top:0.6pt solid #1b1b1b; width:220pt; margin:42pt auto 5pt;}
+  .firma .nombre{font-size:11pt; font-weight:700;}
+  .firma .cargo{font-size:9pt; color:#555; letter-spacing:0.4pt;}
+  .firma .contacto{font-size:8pt; color:#777; margin-top:2pt;}
+  .verify{
+    text-align:center; font-family:"Helvetica","Trebuchet MS",sans-serif;
+    border:1pt dashed #1c3660; padding:8pt 6pt; background:#ffffff; width:170pt; margin:0 0 0 auto;
+  }
+  .verify .qr{text-align:center; margin-bottom:5pt;}
+  .verify .qr img{display:inline;}
+  .verify .folio{font-size:8pt; letter-spacing:0.4pt; color:#7a1f1f; font-weight:700;}
+  .verify .url{font-size:7pt; color:#555;}
+
+  .plantel-bar{
+    margin-top:22pt; border-top:1.5pt solid #a9822f; padding-top:8pt;
+    font-family:"Helvetica","Trebuchet MS",sans-serif; font-size:8pt; color:#555; text-align:center; line-height:1.4;
+  }
+  .plantel-bar b{color:#1c3660;}
+
+  .acuerdos{
+    margin-top:6pt; font-family:"Helvetica","Trebuchet MS",sans-serif; font-size:7pt; color:#666; text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="border-out">
+    <div class="side-label"><span class="rot" data-field="area_emisora">{% block side_label %}{% endblock %}</span></div>
+    <div class="watermark">OFICIAL</div>
+    <div class="border-in">
+
+      {% block header %}{% endblock %}
+
+      <div class="lugar-fecha" data-field="lugar_fecha">Huauchinango, Puebla, a 29 de julio de 2026</div>
+
+      <div class="titulo"><span data-field="tipo_documento">Constancia de Estudios</span></div>
+
+      <div class="destinatario">A QUIEN CORRESPONDA:</div>
+
+      {% block content %}{% endblock %}
+
+      <div class="cierre">— ATENTAMENTE —</div>
+
+      {% block footer %}{% endblock %}
+
+      {% block post_footer %}{% endblock %}
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

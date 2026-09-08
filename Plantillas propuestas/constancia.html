@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Constancia de Estudios</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --navy:#12233f;
+    --navy-2:#1c3660;
+    --gold:#a9822f;
+    --gold-light:#d7b45c;
+    --paper:#faf7ef;
+    --ink:#1b1b1b;
+    --hairline:#c9bd9c;
+    --red-folio:#7a1f1f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e7e2d4;font-family:"Georgia","Times New Roman",serif;color:var(--ink);}
+  .sheet{
+    width:900px; min-height:1160px;
+    margin:24px auto; background:var(--paper);
+    position:relative; padding:26px;
+    box-shadow:0 4px 24px rgba(0,0,0,.25);
+    display:flex; flex-direction:column;
+  }
+  .guilloche{position:absolute; inset:8px; border:2px solid var(--gold); pointer-events:none;}
+  .guilloche::before{
+    content:""; position:absolute; inset:5px; border:1px solid var(--gold-light);
+    background-image:
+      repeating-linear-gradient(115deg, rgba(169,130,47,.10) 0 2px, transparent 2px 9px),
+      repeating-linear-gradient(65deg, rgba(28,54,96,.08) 0 2px, transparent 2px 9px);
+  }
+  .inner{
+    position:relative; flex:1; display:flex; flex-direction:column;
+    border:1px solid var(--hairline); padding:30px 40px 24px;
+    background: radial-gradient(ellipse at 50% 30%, rgba(28,54,96,.035), transparent 60%), var(--paper);
+  }
+  .watermark{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:100px; font-weight:700; letter-spacing:4px; color:rgba(28,54,96,0.045);
+    transform:rotate(-22deg); pointer-events:none; user-select:none; white-space:nowrap;
+  }
+  .side-label{
+    position:absolute; left:-10px; top:50%; transform:translateY(-50%) rotate(180deg);
+    writing-mode:vertical-rl; font-family:"Trebuchet MS",sans-serif; font-weight:700;
+    letter-spacing:10px; color:var(--gold); font-size:15px; opacity:.85;
+  }
+  header.doc{
+    display:grid; grid-template-columns:92px 1fr 150px; align-items:center; gap:14px;
+    border-bottom:3px double var(--gold); padding-bottom:12px; margin-bottom:20px;
+  }
+  .seal{
+    width:88px;height:88px;border-radius:50%;
+    background:conic-gradient(from 0deg, var(--gold-light), var(--navy) 25%, var(--gold-light) 50%, var(--navy) 75%, var(--gold-light));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:inset 0 0 0 3px var(--paper), inset 0 0 0 5px var(--gold);
+  }
+  .seal-inner{
+    width:64px;height:64px;border-radius:50%;background:var(--navy);
+    display:flex;align-items:center;justify-content:center; color:var(--gold-light);
+    font-size:10px;font-weight:700;text-align:center;letter-spacing:.5px; line-height:1.15;
+    font-family:"Trebuchet MS",sans-serif; border:1px solid var(--gold-light);
+  }
+  .inst-name{text-align:center;}
+  .inst-name h1{margin:0; font-size:22px; letter-spacing:1.5px; color:var(--navy); font-family:"Trebuchet MS",sans-serif; text-transform:uppercase;}
+  .inst-name h2{margin:4px 0 0; font-size:12.5px; font-weight:400; letter-spacing:3px; color:var(--gold); text-transform:uppercase;}
+  .inst-name .clave{margin-top:4px;font-size:9.5px;color:#555;letter-spacing:.5px;}
+  .doc-type{text-align:right; font-family:"Trebuchet MS",sans-serif; font-size:11px; color:var(--red-folio); line-height:1.5;}
+  .doc-type .big{display:block; font-size:13px; font-weight:700; color:var(--navy); letter-spacing:.5px; margin-bottom:2px;}
+
+  .lugar-fecha{text-align:right; font-size:12px; font-style:italic; margin-bottom:22px;}
+
+  .titulo-doc{text-align:center; margin:4px 0 30px;}
+  .titulo-doc span{
+    font-family:"Trebuchet MS",sans-serif; font-size:17px; letter-spacing:5px; color:var(--navy);
+    border-bottom:1px solid var(--gold); border-top:1px solid var(--gold); padding:6px 26px; text-transform:uppercase;
+  }
+
+  .destinatario{font-family:"Trebuchet MS",sans-serif; font-weight:700; letter-spacing:2px; color:var(--navy); margin-bottom:24px; font-size:13px;}
+
+  .cuerpo{font-size:14.5px; line-height:2; text-align:justify; flex:1;}
+  .cuerpo b{color:var(--navy);}
+  .cuerpo .destacado{
+    background:rgba(169,130,47,.09); padding:0 4px; border-bottom:1px solid var(--gold);
+  }
+  .datos-caja{
+    display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; font-size:12px; margin:24px 0;
+    background:rgba(28,54,96,.035); padding:14px 18px; border:1px solid var(--hairline);
+  }
+  .datos-caja .campo{display:flex; gap:6px; border-bottom:1px dotted #b6ab8a; padding-bottom:2px;}
+  .datos-caja .campo b{color:var(--navy); min-width:120px; font-family:"Trebuchet MS",sans-serif; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.3px;}
+
+  .cierre{font-size:13px; margin-top:20px; text-align:center; font-style:italic;}
+
+  footer.doc{
+    display:grid; grid-template-columns:1fr 170px; gap:18px; align-items:end;
+    margin-top:40px; padding-top:16px; border-top:1px solid var(--hairline);
+  }
+  .firma{text-align:center;}
+  .firma .linea{border-top:1px solid var(--ink); width:250px; margin:44px auto 6px;}
+  .firma .nombre{font-size:12.5px; font-weight:700;}
+  .firma .cargo{font-size:10px; color:#555; letter-spacing:.5px;}
+  .firma .contacto{font-size:9px; color:#777; margin-top:2px;}
+  .verify{text-align:center; font-family:"Trebuchet MS",sans-serif; border:1px dashed var(--navy); padding:8px; background:#fff;}
+  .verify #qrcode{display:flex; justify-content:center; margin-bottom:5px;}
+  .verify .folio{font-size:9px; letter-spacing:.5px; color:var(--red-folio); font-weight:700;}
+  .verify .url{font-size:7.5px; color:#555; word-break:break-all;}
+
+  .plantel-bar{
+    margin-top:20px; padding-top:10px; border-top:2px solid var(--gold);
+    display:flex; flex-wrap:wrap; justify-content:center; gap:4px 18px;
+    font-size:9px; color:#555; font-family:"Trebuchet MS",sans-serif; letter-spacing:.2px; text-align:center;
+  }
+  .plantel-bar span b{color:var(--navy);}
+
+  .acuerdos{
+    margin-top:10px; font-size:7.5px; color:#666; text-align:center; font-family:"Trebuchet MS",sans-serif;
+    letter-spacing:.2px; padding-top:6px;
+  }
+
+  @media print{ body{background:#fff;} .sheet{box-shadow:none; margin:0;} }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="guilloche"></div>
+  <div class="inner">
+    <div class="watermark">OFICIAL · OFICIAL</div>
+    <div class="side-label" data-field="area_emisora">CONSTANCIA DE ESTUDIOS</div>
+
+    <header class="doc">
+      <div class="seal"><div class="seal-inner">UNIV.<br>HISPANA</div></div>
+      <div class="inst-name">
+        <h1 data-field="institucion">Universidad Hispana</h1>
+        <h2 data-field="plantel">Plantel Huauchinango</h2>
+        <div class="clave">
+          Reg. SEP <span data-field="reg_sep">21MSU1231N</span>
+          &nbsp;·&nbsp; Reg. Dir. Gral. de Profesiones <span data-field="reg_profesiones">210140</span>
+        </div>
+      </div>
+      <div class="doc-type">
+        <span class="big">CONSTANCIA</span>
+        Folio: <span data-field="folio">2/315/L</span>
+      </div>
+    </header>
+
+    <div class="lugar-fecha" data-field="lugar_fecha">Huauchinango, Puebla, a 29 de julio de 2026</div>
+
+    <div class="titulo-doc"><span>Constancia de Estudios</span></div>
+
+    <div class="destinatario">A QUIEN CORRESPONDA:</div>
+
+    <div class="cuerpo">
+      La(el) que suscribe, <b data-field="cargo_firmante_texto">Directora de Control Escolar</b> de esta
+      Institución, hace constar que del expediente escolar de
+      <b data-field="nombre_completo" class="destacado">Brenda Ruíz Elizarraraz</b>
+      se encuentra inscrita(o) en el <b data-field="cuatrimestre">4°</b> cuatrimestre de la
+      <b data-field="carrera">Maestría en Psicopedagogía</b>, en esta Institución,
+      con matrícula <b data-field="matricula" class="destacado">24101601</b>.
+
+      <div class="datos-caja">
+        <div class="campo"><b>Periodo</b><span data-field="periodo">8 de septiembre al 19 de diciembre de 2025</span></div>
+        <div class="campo"><b>Turno</b><span data-field="turno">Sabatino</span></div>
+        <div class="campo"><b>Modalidad</b><span data-field="modalidad">Escolarizada</span></div>
+        <div class="campo"><b>Estatus</b><span data-field="estatus">Alumno regular</span></div>
+      </div>
+
+      Se extiende la presente a solicitud de la interesada y para los fines que crea convenientes
+      dentro del marco de la Ley. Sin otro particular por el momento.
+    </div>
+
+    <div class="cierre">— ATENTAMENTE —</div>
+
+    <footer class="doc">
+      <div class="firma">
+        <div class="linea"></div>
+        <div class="nombre" data-field="firmante">Dra. Sonia Figueroa Martínez</div>
+        <div class="cargo" data-field="cargo_firmante">Directora de Control Escolar</div>
+        <div class="contacto">
+          <span data-field="correo_firmante">sonia.figueroa@hispanahuauchinango.mx</span>
+          &nbsp;·&nbsp; Cel. <span data-field="cel_firmante">247 104 16 52</span>
+        </div>
+      </div>
+      <div class="verify">
+        <div id="qrcode"></div>
+        <div class="folio">FOLIO: <span data-field="folio_verif">2/315/L</span></div>
+        <div class="url">Verifique este documento en<br>hispana.edu.mx/verificar</div>
+      </div>
+    </footer>
+
+    <div class="plantel-bar">
+      <span data-field="direccion_plantel"><b>Dirección:</b> Solar Urbano Lote 02 Manzana 39 Zona 02, Pob. San Juan, Sta. Catarina y el Potro, Huauchinango, Pue. C.P. 73160</span>
+      <span data-field="telefono_plantel"><b>Tel:</b> 776 76 241 59</span>
+      <span data-field="correo_plantel"><b>Correo:</b> inscripciones@hispanahuauchinango.mx</span>
+      <span data-field="web_plantel"><b>Web:</b> www.hispanahuauchinango.mx</span>
+    </div>
+
+    <!-- Bloque opcional: solo para planteles/matrices que listan sus RVOE por carrera.
+         Elimínese o vacíese si el plantel no aplica. -->
+    <div class="acuerdos" data-field="acuerdos_sep" data-optional="true">
+      Acuerdos SEP: Lic. Administración de Empresas 20100607 · Mercadotecnia y Publicidad 20123178 ·
+      Sistemas Computacionales 20120724 · Contaduría Pública 20120714 · Diseño Gráfico 20120715 ·
+      Gastronomía 20123177 · Arquitectura 20100608 · Psicología 20123179 · Derecho 20100609 ·
+      Mtría. Psicopedagogía 20120725 · Educación 20122773.
+    </div>
+  </div>
+</div>
+
+<script>
+  new QRCode(document.getElementById("qrcode"), {
+    text: "https://hispana.edu.mx/verificar?tipo=constancia&folio=2-315-L&matricula=24101601",
+    width: 84,
+    height: 84,
+    colorDark: "#12233f",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% extends "pdf/base.html" %}
+
+{% block side_label %}CONSTANCIA DE ESTUDIOS{% endblock %}
+
+{% block header %}
+{% include "pdf/components/header.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "pdf/components/student_info.html" %}
+{% endblock %}
+
+{% block footer %}
+{% include "pdf/components/footer.html" %}
+{% endblock %}
+
+{% block post_footer %}
+<div class="plantel-bar" data-field="plantel_contacto">
+  Carretera Federal Huauchinango-Necaxa KM 2, Centro, Huauchinango, Puebla Solar Urbano Lote 02 Manzana 39 Zona 02, Pob. San Juan, Sta. Catarina y el Potrero, Huauchinango, Pue. C.P. 73160 · Tels. 7767620100 · 776 76 241 59 ·
+  contacto.huauchinango@hispana.edu.mx · inscripciones@hispanahuauchinango.mx ·
+  https://huauchinango.hispana.edu.mx · www.hispanahuauchinango.mx
+</div>
+<div class="acuerdos">SEP/2022/0412</div>
+{% endblock %}

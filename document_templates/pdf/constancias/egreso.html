@@ -1,0 +1,37 @@
+{% extends "pdf/base.html" %}
+
+{% block title %}Constancia de Egreso{% endblock %}
+
+{% block side_label %}{% endblock %}
+
+{% block header %}
+{% include "pdf/components/header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="titulo-doc"><span data-field="tipo_documento">Constancia de Egreso</span></div>
+
+<div class="destinatario">A QUIEN CORRESPONDA:</div>
+
+<div class="cuerpo">
+  La(el) que suscribe, <b data-field="cargo_firmante_texto">Directora de Control Escolar</b> de esta
+  Institución, hace constar que el(la) alumno(a)
+  <b data-field="nombre_completo" class="destacado"></b>
+  con matrícula <b data-field="matricula" class="destacado"></b>,
+  ha concluido satisfactoriamente sus estudios en la carrera
+  <b data-field="carrera"></b>,
+  obteniendo el título de <b data-field="titulo_otorgado"></b>
+  con promedio general de <b data-field="promedio_general"></b>.
+
+  {% include "pdf/components/student_info.html" %}
+
+  Se extiende la presente a solicitud de la interesada(o) y para los fines que crea convenientes
+  dentro del marco de la Ley. Sin otro particular por el momento.
+</div>
+
+<div class="cierre">— ATENTAMENTE —</div>
+{% endblock %}
+
+{% block footer %}
+{% include "pdf/components/footer.html" %}
+{% endblock %}

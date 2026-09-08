@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Kardex Académico</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --navy:#12233f;
+    --navy-2:#1c3660;
+    --gold:#a9822f;
+    --gold-light:#d7b45c;
+    --paper:#faf7ef;
+    --ink:#1b1b1b;
+    --hairline:#c9bd9c;
+    --green-seal:#1f4d3a;
+    --red-folio:#7a1f1f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e7e2d4;font-family:"Georgia","Times New Roman",serif;color:var(--ink);}
+  .sheet{
+    width:900px;
+    margin:24px auto;
+    background:var(--paper);
+    position:relative;
+    padding:26px;
+    box-shadow:0 4px 24px rgba(0,0,0,.25);
+  }
+  /* Guilloche border */
+  .guilloche{
+    position:absolute; inset:8px;
+    border:2px solid var(--gold);
+    pointer-events:none;
+  }
+  .guilloche::before{
+    content:"";
+    position:absolute; inset:5px;
+    border:1px solid var(--gold-light);
+    background-image:
+      repeating-linear-gradient(115deg, rgba(169,130,47,.10) 0 2px, transparent 2px 9px),
+      repeating-linear-gradient(65deg, rgba(28,54,96,.08) 0 2px, transparent 2px 9px);
+  }
+  .inner{
+    position:relative;
+    border:1px solid var(--hairline);
+    padding:28px 34px 22px;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(28,54,96,.035), transparent 60%),
+      var(--paper);
+  }
+  .watermark{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:92px; font-weight:700; letter-spacing:4px;
+    color:rgba(28,54,96,0.05);
+    transform:rotate(-22deg);
+    pointer-events:none; user-select:none;
+    white-space:nowrap;
+  }
+  header.doc{
+    display:grid;
+    grid-template-columns:92px 1fr 130px;
+    align-items:center;
+    gap:14px;
+    border-bottom:3px double var(--gold);
+    padding-bottom:12px;
+    margin-bottom:16px;
+  }
+  .seal{
+    width:88px;height:88px;border-radius:50%;
+    background:conic-gradient(from 0deg, var(--gold-light), var(--navy) 25%, var(--gold-light) 50%, var(--navy) 75%, var(--gold-light));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:inset 0 0 0 3px var(--paper), inset 0 0 0 5px var(--gold);
+  }
+  .seal-inner{
+    width:64px;height:64px;border-radius:50%;background:var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gold-light);font-size:10px;font-weight:700;text-align:center;
+    letter-spacing:.5px; line-height:1.15; font-family:"Trebuchet MS",sans-serif;
+    border:1px solid var(--gold-light);
+  }
+  .inst-name{text-align:center;}
+  .inst-name h1{
+    margin:0; font-size:22px; letter-spacing:1.5px; color:var(--navy);
+    font-family:"Trebuchet MS","Georgia",sans-serif; text-transform:uppercase;
+  }
+  .inst-name h2{
+    margin:4px 0 0; font-size:12.5px; font-weight:400; letter-spacing:3px;
+    color:var(--gold); text-transform:uppercase;
+  }
+  .inst-name .clave{margin-top:4px;font-size:9.5px;color:#555;letter-spacing:.5px;}
+  .doc-type{
+    text-align:right; font-family:"Trebuchet MS",sans-serif;
+    font-size:11px; color:var(--red-folio); line-height:1.5;
+  }
+  .doc-type .big{
+    display:block; font-size:14px; font-weight:700; color:var(--navy);
+    letter-spacing:.5px; margin-bottom:2px;
+  }
+  .titulo-doc{
+    text-align:center; margin:6px 0 18px;
+  }
+  .titulo-doc span{
+    font-family:"Trebuchet MS",sans-serif; font-size:15px; letter-spacing:4px;
+    color:var(--navy); border-bottom:1px solid var(--gold); border-top:1px solid var(--gold);
+    padding:5px 22px; text-transform:uppercase;
+  }
+  .datos{
+    display:grid; grid-template-columns:1fr 1fr; gap:6px 24px;
+    font-size:12.5px; margin-bottom:16px;
+    background:rgba(28,54,96,.035); padding:12px 16px; border:1px solid var(--hairline);
+  }
+  .datos .campo{display:flex; gap:6px; border-bottom:1px dotted #b6ab8a; padding-bottom:2px;}
+  .datos .campo b{color:var(--navy); min-width:110px; font-family:"Trebuchet MS",sans-serif; font-weight:700; font-size:10.5px; text-transform:uppercase; letter-spacing:.3px;}
+  .datos .campo span{flex:1;}
+  .datos .full{grid-column:1/-1;}
+
+  table.kardex{width:100%; border-collapse:collapse; font-size:11px; margin-bottom:6px;}
+  table.kardex caption{
+    text-align:left; font-family:"Trebuchet MS",sans-serif; font-weight:700; font-size:11px;
+    color:#fff; background:var(--navy); padding:4px 10px; letter-spacing:1px; text-transform:uppercase;
+  }
+  table.kardex th{
+    background:var(--navy-2); color:#f1ead9; font-family:"Trebuchet MS",sans-serif;
+    font-weight:600; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px;
+    padding:6px 6px; border:1px solid var(--navy);
+  }
+  table.kardex td{
+    padding:4px 6px; border:1px solid var(--hairline);
+  }
+  table.kardex tbody tr:nth-child(even){background:rgba(28,54,96,.035);}
+  table.kardex td.center, table.kardex th.center{text-align:center;}
+  .periodo-row td{
+    background:var(--gold-light); color:var(--navy); font-weight:700;
+    font-family:"Trebuchet MS",sans-serif; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+  }
+  .resumen{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0;
+    font-size:11px;
+  }
+  .resumen .card{
+    border:1px solid var(--gold); background:rgba(169,130,47,.06);
+    padding:8px 10px; text-align:center;
+  }
+  .resumen .card .lbl{display:block; font-family:"Trebuchet MS",sans-serif; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--navy); margin-bottom:3px;}
+  .resumen .card .val{font-size:16px; font-weight:700; color:var(--red-folio);}
+
+  footer.doc{
+    display:grid; grid-template-columns:1fr 170px; gap:18px; align-items:end;
+    margin-top:22px; padding-top:14px; border-top:1px solid var(--hairline);
+  }
+  .firma{text-align:center;}
+  .firma .linea{border-top:1px solid var(--ink); width:230px; margin:34px auto 6px;}
+  .firma .nombre{font-size:12px; font-weight:700;}
+  .firma .cargo{font-size:10px; color:#555; letter-spacing:.5px;}
+  .verify{
+    text-align:center; font-family:"Trebuchet MS",sans-serif;
+    border:1px dashed var(--navy); padding:8px; background:#fff;
+  }
+  .verify #qrcode{display:flex; justify-content:center; margin-bottom:5px;}
+  .verify .folio{font-size:9px; letter-spacing:.5px; color:var(--red-folio); font-weight:700;}
+  .verify .url{font-size:7.5px; color:#555; word-break:break-all;}
+
+  .nota-legal{
+    margin-top:14px; font-size:8.5px; color:#666; text-align:center; font-family:"Trebuchet MS",sans-serif;
+    letter-spacing:.3px;
+  }
+
+  @media print{
+    body{background:#fff;}
+    .sheet{box-shadow:none; margin:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="guilloche"></div>
+  <div class="inner">
+    <div class="watermark">OFICIAL · OFICIAL</div>
+
+    <header class="doc">
+      <div class="seal">
+        <div class="seal-inner">UNIV.<br>HISPANA</div>
+      </div>
+      <div class="inst-name">
+        <h1>Universidad Hispana</h1>
+        <h2>Instituto Universitario</h2>
+        <div class="clave">Clave SEP 21MSU1231N &nbsp;·&nbsp; C.T. 21PSU127R</div>
+      </div>
+      <div class="doc-type">
+        <span class="big">KARDEX</span>
+        Folio: <span data-field="folio"></span><br>
+        Fecha: <span data-field="fecha_emision"></span>
+      </div>
+    </header>
+
+    <div class="titulo-doc"><span>Certificado Académico</span></div>
+
+    <div class="datos">
+      <div class="campo"><b>Carrera</b><span data-field="carrera"></span></div>
+      <div class="campo"><b>Matrícula</b><span data-field="matricula">22109001</span></div>
+      <div class="campo"><b>Apellido Paterno</b><span data-field="ap_paterno">Hernández</span></div>
+      <div class="campo"><b>Apellido Materno</b><span data-field="ap_materno">Gallo</span></div>
+      <div class="campo full"><b>Nombre(s)</b><span data-field="nombres">Yazmín Marlene</span></div>
+    </div>
+
+    <table class="kardex">
+      <thead>
+        <tr>
+          <th style="width:26px">Créd.</th>
+          <th style="text-align:left">Materia</th>
+          <th>Clave</th>
+          <th class="center">Ordinario</th>
+          <th class="center">Extra 1</th>
+          <th class="center">Extra 2</th>
+          <th class="center">Final</th>
+          <th style="text-align:left">Calificación (letra)</th>
+        </tr>
+      </thead>
+      <tbody data-repeat="periodos">
+        <tr class="periodo-row"><td colspan="8" data-field="_periodo_label"></td></tr>
+      </tbody>
+      <tbody data-repeat="materias">
+        <tr>
+          <td class="center" data-field="creditos"></td>
+          <td data-field="materia"></td>
+          <td data-field="clave"></td>
+          <td class="center" data-field="ordinario"></td>
+          <td class="center" data-field="extra_1"></td>
+          <td class="center" data-field="extra_2"></td>
+          <td class="center" data-field="final"></td>
+          <td data-field="calificacion_letra"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="resumen">
+      <div class="card"><span class="lbl">Materias cursadas</span><span class="val" data-field="total_materias">20</span></div>
+      <div class="card"><span class="lbl">Créditos acumulados</span><span class="val" data-field="creditos">120</span></div>
+      <div class="card"><span class="lbl">Promedio general</span><span class="val" data-field="promedio">9.75</span></div>
+      <div class="card"><span class="lbl">Avance de plan</span><span class="val" data-field="avance">42%</span></div>
+    </div>
+
+    <footer class="doc">
+      <div class="firma">
+        <div class="linea"></div>
+        <div class="nombre" data-field="firmante">Mtro. Carlos A. Figueroa Martínez</div>
+        <div class="cargo">Director Administrativo</div>
+      </div>
+      <div class="verify">
+        <div id="qrcode"></div>
+        <div class="folio">FOLIO: <span data-field="folio_verif">KRD-2026-0741</span></div>
+        <div class="url">Verifique este documento en<br>hispana.edu.mx/verificar</div>
+      </div>
+    </footer>
+
+    <div class="nota-legal">
+      Este documento es una representación digital estandarizada. Su autenticidad puede confirmarse
+      escaneando el código QR o capturando el folio en el portal de verificación pública institucional.
+    </div>
+  </div>
+</div>
+
+<script>
+  new QRCode(document.getElementById("qrcode"), {
+    text: "https://hispana.edu.mx/verificar?tipo=kardex&folio=KRD-2026-0741&matricula=22109001",
+    width: 84,
+    height: 84,
+    colorDark: "#12233f",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+</script>
+
+</body>
+</html>
