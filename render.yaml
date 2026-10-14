@@ -17,6 +17,9 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: bash start.sh config.settings_render
     healthCheckPath: /admin/
+    diskMounts:
+      - name: media
+        mountPath: media
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings_render
@@ -41,11 +44,13 @@ services:
       - key: CREATE_SUPERUSER_ON_START
         value: "true"
       # Media: los PDF se generan y leen desde el sistema de archivos,
-      # por eso se monta un disco persistente en la carpeta media.
-    disks:
-      - name: media
-        mountPath: media
-        sizeGB: 1
+      # por eso se monta un disco persistente en la carpeta media (ver `disks`).
+
+# Disco persistente para MEDIA_ROOT (PDFs, logos, etc.).
+disks:
+  - name: media
+    mountPath: media
+    sizeGB: 1
 
 # Base de datos PostgreSQL; Render inyecta DATABASE_URL en el servicio.
 databases:
