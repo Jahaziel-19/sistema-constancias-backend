@@ -8,16 +8,16 @@ Diferencias con los otros entornos:
   conectar un PostgreSQL); las variables ``DB_*`` funcionan como respaldo.
 - ``ALLOWED_HOSTS`` incluye ``RENDER_EXTERNAL_HOSTNAME`` de forma automática.
 - Archivos estáticos con WhiteNoise (``STATIC_ROOT`` + ``collectstatic``).
-- Media en disco local: el pipeline de PDF lee y escribe directamente sobre
-  ``MEDIA_ROOT``, por lo que en Render se monta un disco persistente en la
-  carpeta ``media`` (ver ``render.yaml``).
+- Media en Cloudinary (``DEFAULT_FILE_STORAGE``). ``MEDIA_ROOT`` se mantiene
+  local solo para que el pipeline de PDF lea los logos (se copian a
+  ``media/logos/`` en cada arranque en ``start.sh``); los archivos subidos
+  (fotos, firmas, documentos) se almacenan en Cloudinary.
 """
 
 import os
 from datetime import timedelta
 from pathlib import Path
 
-import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'storages',
+    'cloudinary',
     'uh_core',
     'uh_academico',
     'uh_documentos',
@@ -95,6 +97,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 _database_url = os.environ.get("DATABASE_URL")
 if _database_url:
+    import dj_database_url
     DATABASES = {
         "default": dj_database_url.parse(
             _database_url,
@@ -139,10 +142,18 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'logos']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media: el pipeline de PDF trabaja directamente sobre el sistema de archivos.
-# En Render la carpeta `media` es un disco persistente (ver render.yaml).
+# Media: los archivos subidos (fotos, firmas, documentos) van a Cloudinary.
+# MEDIA_ROOT se mantiene local solo para que el pipeline de PDF lea los logos
+# copiados en media/logos/ por start.sh.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': _env("CLOUDINARY_CLOUD_NAME", required=True),
+    'API_KEY': _env("CLOUDINARY_API_KEY", required=True),
+    'API_SECRET': _env("CLOUDINARY_API_SECRET", required=True),
+}
 
 _raw_cors = _env("CORS_ALLOWED_ORIGINS", "")
 CORS_ALLOWED_ORIGINS = [o.strip() for o in _raw_cors.split(",") if o.strip()] if _raw_cors else []
@@ -159,7 +170,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "TOKEN_OBTAIN_SERIALIZER": "uh_usuarios.serializers.UsuarioTokenSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "uh_usuarios.serializers_projection.}",
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }

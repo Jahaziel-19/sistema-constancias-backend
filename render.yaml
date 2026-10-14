@@ -14,12 +14,12 @@ services:
     env: python
     runtime: python-3.13
     plan: starter            # plan gratuito (se suspende tras 15 min sin tráfico)
+    repo: https://github.com/Jahaziel-19/sistema-constancias-universidad-hispana
+    region: oregon
     buildCommand: pip install -r requirements.txt
     startCommand: bash start.sh config.settings_render
     healthCheckPath: /admin/
-    diskMounts:
-      - name: media
-        mountPath: media
+    autoDeployTrigger: commit
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings_render
@@ -31,6 +31,13 @@ services:
       # Agrégala si usas un dominio personalizado.
       - key: DJANGO_ALLOWED_HOSTS
         value: ""
+      # Cloudinary (media): obtener CLOUD_NAME, API_KEY, API_SECRET en tu cuenta.
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
       # Origen del frontend (ajusta al despliegue del frontend):
       - key: CORS_ALLOWED_ORIGINS
         value: https://tu-frontend.onrender.com
@@ -43,14 +50,9 @@ services:
         value: fixtures/csv
       - key: CREATE_SUPERUSER_ON_START
         value: "true"
-      # Media: los PDF se generan y leen desde el sistema de archivos,
-      # por eso se monta un disco persistente en la carpeta media (ver `disks`).
-
-# Disco persistente para MEDIA_ROOT (PDFs, logos, etc.).
-disks:
-  - name: media
-    mountPath: media
-    sizeGB: 1
+      # Media: los archivos subidos (fotos, firmas, documentos) se almacenan
+      # en Cloudinary; los logos del pipeline de PDF se copian a media/logos/
+      # en cada arranque (start.sh), sin necesidad de disco persistente.
 
 # Base de datos PostgreSQL; Render inyecta DATABASE_URL en el servicio.
 databases:
