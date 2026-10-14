@@ -48,7 +48,7 @@ def tiene_modulo(user, modulo: str) -> bool:
     if modulo in personalizados:
         return bool(personalizados[modulo])
     if perfil.rol:
-        return bool(perfil.rol.acceso_modulo(modulo))
+        return bool(getattr(perfil.rol, f"puede_{modulo}", False))
     return modulo in MODULOS_BASICOS
 
 
