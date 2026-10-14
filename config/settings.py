@@ -15,6 +15,22 @@ from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
+from urllib.parse import urlparse
+
+
+def _sanitize_cors_origin(origin: str) -> str:
+    """Normaliza un origen CORS a esquema + host (sin path ni barra final).
+
+    django-cors-headers rechaza orígenes con path (ej: ...vercel.app/).
+    """
+    origin = origin.strip()
+    if not origin:
+        return ""
+    parsed = urlparse(origin if "://" in origin else f"//{origin}")
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}"
+    return origin.rstrip("/")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -156,7 +172,9 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-CORS_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",") if o.strip()]
+CORS_ALLOWED_ORIGINS = [
+    o for o in (_sanitize_cors_origin(x) for x in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")) if o
+]
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 REST_FRAMEWORK = {

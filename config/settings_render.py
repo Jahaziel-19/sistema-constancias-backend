@@ -155,8 +155,27 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': _env("CLOUDINARY_API_SECRET", required=True),
 }
 
+from urllib.parse import urlparse
+
+
+def _sanitize_cors_origin(origin: str) -> str:
+    """Normaliza un origen CORS a esquema + host (sin path ni barra final).
+
+    django-cors-headers rechaza orígenes con path (ej: ...vercel.app/).
+    """
+    origin = origin.strip()
+    if not origin:
+        return ""
+    parsed = urlparse(origin if "://" in origin else f"//{origin}")
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}"
+    return origin.rstrip("/")
+
+
 _raw_cors = _env("CORS_ALLOWED_ORIGINS", "")
-CORS_ALLOWED_ORIGINS = [o.strip() for o in _raw_cors.split(",") if o.strip()] if _raw_cors else []
+CORS_ALLOWED_ORIGINS = [
+    o for o in (_sanitize_cors_origin(x) for x in _raw_cors.split(",")) if o
+]
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CSRF_TRUSTED_ORIGINS = [o for o in CORS_ALLOWED_ORIGINS if o.startswith("https://")]
 
