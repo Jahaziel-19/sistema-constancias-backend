@@ -3,27 +3,39 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from uh_usuarios.access import (
     MODULES,
-    autoridad_usuario,
+    autoridad usuário,
     es_admin,
     obtener_perfil,
-    permisos_personalizados_usuario,
+    permisos_personalizados usuário,
     permisos_rol,
-    permisos_usuario,
-    planteles_usuario,
+    permisos usuário,
+    planteles usuário,
 )
 from uh_usuarios.models import PerfilUsuario, Rol
 
 
 class UsuarioTokenSerializer(TokenObtainPairSerializer):
+    username_field = "username"
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        perfil: PerfilUsuario | None = obtener_perfil(user)
-        token["is_admin"] = es_admin(user)
-        token["rol"] = perfil.rol.nombre if perfil and perfil.rol else None
-        token["autoridad_id"] = perfil.autoridad_id if perfil else None
-        token["plantel_ids"] = list(planteles_usuario(user))
-        token["permisos"] = {m: permisos_usuario(user)[m] for m in MODULES}
+        try:
+            perfil: PerfilUsuario | None = obtener_perfil(user)
+            token["is_admin"] = es_admin(user)
+            token["rol"] = perfil.rol.nombre if perfil and perfil.rol else None
+            token["autoridad_id"] = perfil.autoridad_id if perfil else None
+            token["plantel_ids"] = list(planteles usuário(user))
+            token["permisos"] = {m: permisos usuário(user)[m] for m in MODULES}
+        except Exception:
+            # Tolerante: si falla el cálculo de perfil/permisos, el token
+            # sigue siendo válido (el usuario puede autenticarse y el
+            # frontend recupera permisos al cargar /auth/me/).
+            token["is_admin"] = bool(getattr(user, "is_superuser", False) or getattr(user, "is_staff", False))
+            token["rol"] = None
+            token["autoridad_id"] = None
+            token["plantel_ids"] = []
+            token["permisos"] = {m: token["is_admin"] for m in MODULES}
         return token
 
 
