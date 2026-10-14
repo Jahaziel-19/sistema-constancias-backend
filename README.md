@@ -34,6 +34,8 @@ copy .env.example .env
 
 ## Despliegue
 
-- **Render**: usa `render.yaml` (Blueprint) con Root Directory `backend`; el
-  arranque es `bash start.sh config.settings_render`. Ver [DEPLOY.md](../DEPLOY.md).
+- **Render**: Web Service manual con Root Directory `backend`, Build Command
+  `pip install -r requirements.txt`, Start Command
+  `bash start.sh config.settings_render`. Media en Cloudinary; base de datos
+  PostgreSQL (Render inyecta `DATABASE_URL`). Ver [DEPLOY.md](../DEPLOY.md).
 - Ver [DEPLOY.md](../DEPLOY.md) del repositorio monorepo original para instrucciones detalladas.
