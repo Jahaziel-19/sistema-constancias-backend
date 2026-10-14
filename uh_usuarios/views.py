@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from uh_core.models import Autoridad, PlantelAutoridad
 from uh_usuarios.access import (
@@ -17,7 +18,11 @@ from uh_usuarios.access import (
     planteles_usuario,
 )
 from uh_usuarios.models import PerfilUsuario
-from uh_usuarios.serializers import UsuarioPerfilSerializer
+from uh_usuarios.serializers import UsuarioPerfilSerializer, Serialized
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = Serialized
 
 
 class MeView(APIView):
