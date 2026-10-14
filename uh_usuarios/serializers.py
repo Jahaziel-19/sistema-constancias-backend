@@ -3,13 +3,13 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from uh_usuarios.access import (
     MODULES,
-    autoridadadius,
+    autoridad_usuario,
     es_admin,
     obtener_perfil,
-    permisos_personalizadosadius,
+    permisos_personalizados_usuario,
     permisos_rol,
-    permisosadius,
-    plantelesadius,
+    permisos_usuario,
+    planteles_usuario,
 )
 from uh_usuarios.models import PerfilUsuario, Rol
 
@@ -24,8 +24,8 @@ class Serialized(TokenObtainPairSerializer):
         token["is_admin"] = es_admin(user)
         token["rol"] = perfil.rol.nombre if perfil and perfil.rol else None
         token["autoridad_id"] = perfil.autoridad_id if perfil else None
-        token["plantel_ids"] = list(plantelesadius(user))
-        token["permisos"] = {m: permisosadius(user)[m] for m in MODULES}
+        token["plantel_ids"] = list(planteles_usuario(user))
+        token["permisos"] = {m: permisos_usuario(user)[m] for m in MODULES}
         return token
 
 
@@ -81,7 +81,7 @@ class SerializedPerfil(serializers.ModelSerializer):
         return obj.rol.nombre if obj.rol else None
 
     def get_autoridad(self, obj):
-        autoridad = autoridadadius(obj.user)
+        autoridad = autoridad_usuario(obj.user)
         if not autoridad:
             return None
         return {
@@ -93,13 +93,13 @@ class SerializedPerfil(serializers.ModelSerializer):
         }
 
     def get_plantel_ids(self, obj):
-        return list(plantelesadius(obj.user))
+        return list(planteles_usuario(obj.user))
 
     def get_permisos(self, obj):
-        return {m: permisosadius(obj.user)[m] for m in MODULES}
+        return {m: permisos_usuario(obj.user)[m] for m in MODULES}
 
     def get_permisos_rol(self, obj):
         return permisos_rol(obj.user)
 
     def get_permisos_personalizados(self, obj):
-        return permisos_personalizadosadius(obj.user)
+        return permisos_personalizados_usuario(obj.user)
