@@ -12,7 +12,7 @@ services:
   - type: web
     name: uh-backend
     env: python
-    runtime: python-3.13
+    pythonVersion: "3.13"
     plan: starter            # plan gratuito (se suspende tras 15 min sin tráfico)
     repo: https://github.com/Jahaziel-19/sistema-constancias-universidad-hispana
     region: oregon
