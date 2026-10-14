@@ -20,12 +20,40 @@ class Serialized(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        perfil = obtener_perfil(user)
-        token["is_admin"] = es_admin(user)
-        token["rol"] = perfil.rol.nombre if perfil and perfil.rol else None
-        token["autoridad_id"] = perfil.autoridad_id if perfil else None
-        token["plantel_ids"] = list(planteles_usuario(user))
-        token["permisos"] = {m: permisos_usuario(user)[m] for m in MODULES}
+        try:
+            perfil = obtener_perfil(user)
+        except Exception:
+            perfil = None
+        
+        try:
+            token["is_admin"] = es_admin(user)
+        except Exception:
+            token["is_admin"] = False
+            
+        try:
+            if perfil and perfil.rol:
+                token["rol"] = perfil.rol.nombre
+            else:
+                token["rol"] = None
+        except Exception:
+            token["rol"] = None
+            
+        try:
+            token["autoridad_id"] = perfil.autoridad_id if perfil else None
+        except Exception:
+            token["autoridad_id"] = None
+            
+        try:
+            token["plantel_ids"] = list(planteles_usuario(user))
+        except Exception:
+            token["plantel_ids"] = []
+            
+        try:
+            permisos_dict = permisos_usuario(user)
+            token["permisos"] = {m: permisos_dict[m] for m in MODULES}
+        except Exception:
+            token["permisos"] = {m: False for m in MODULES}
+            
         return token
 
 
