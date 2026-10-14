@@ -29,7 +29,7 @@ class Serialized(TokenObtainPairSerializer):
         return token
 
 
-class SerializedPerfil(serializers.ModelSerializer):
+class UsuarioPerfilSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
     nombre = serializers.SerializerMethodField()
     email = serializers.CharField(source="user.email", read_only=True)
