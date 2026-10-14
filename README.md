@@ -12,6 +12,7 @@ API REST en Django/DRF para la generación y gestión de documentos académicos 
 | Entorno | Descripción | Settings | Variables |
 |---|---|---|---|
 | Desarrollo | Local, SQLite, storage local | `config.settings` | `backend/.env` |
+| Render | Render + PostgreSQL + disco persistente | `config.settings_render` | Estándar + `DATABASE_URL` |
 | Demo | Railway + Neon + Cloudinary | `config.settings_demo` | Prefijo `DEMO_` |
 
 ## Inicio rápido (desarrollo)
@@ -33,4 +34,6 @@ copy .env.example .env
 
 ## Despliegue
 
-Ver [DEPLOY.md](../DEPLOY.md) del repositorio monorepo original para instrucciones detalladas.
+- **Render**: usa `render.yaml` (Blueprint) con Root Directory `backend`; el
+  arranque es `bash start.sh config.settings_render`. Ver [DEPLOY.md](../DEPLOY.md).
+- Ver [DEPLOY.md](../DEPLOY.md) del repositorio monorepo original para instrucciones detalladas.

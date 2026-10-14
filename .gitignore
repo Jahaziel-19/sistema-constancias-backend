@@ -1,7 +1,6 @@
-# Entornos
-.env
-.env.demo
-.env.vps
+# Entornos: no subir archivos .env con datos reales; sí las plantillas .env.*.example
+.env*
+!.env*.example
 
 # Python
 __pycache__/
@@ -17,6 +16,9 @@ env/
 db.sqlite3
 /staticfiles/
 /media/
+
+# Fixtures de datos (CSV/JSON con información sensible)
+fixtures/
 
 # IDE
 .vscode/

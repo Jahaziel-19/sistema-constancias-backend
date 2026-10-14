@@ -1,0 +1,55 @@
+# Blueprint de Render para el backend del Sistema de Constancias.
+#
+# Cómo usarlo:
+#   1. Sube este repositorio a GitHub.
+#   2. En Render: New + -> Blueprint -> conecta el repositorio.
+#      Render detecta este archivo (backend/render.yaml) y crea el servicio
+#      y la base de datos automáticamente.
+#   Alternativa manual: New + -> Web Service (Root Directory: backend).
+#
+# Docs: https://render.com/docs/blueprint
+services:
+  - type: web
+    name: uh-backend
+    env: python
+    runtime: python-3.13
+    plan: starter            # plan gratuito (se suspende tras 15 min sin tráfico)
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh config.settings_render
+    healthCheckPath: /admin/
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings_render
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true       # Render genera y guarda el secreto
+      # DJANGO_ALLOWED_HOSTS: opcional; RENDER_EXTERNAL_HOSTNAME se añade solo.
+      # Agrégala si usas un dominio personalizado.
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ""
+      # Origen del frontend (ajusta al despliegue del frontend):
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://tu-frontend.onrender.com
+      # Datos iniciales en el arranque (idempotente):
+      # Las migraciones ya siembran TiposDocumento; habilita SOLO si la BD está
+      # completamente vacía (antes de migrar) o para cargar planteles/alumnos.
+      - key: IMPORT_FIXTURES_ON_START
+        value: "false"
+      - key: FIXTURES_CSV_PATH
+        value: fixtures/csv
+      - key: CREATE_SUPERUSER_ON_START
+        value: "true"
+      # Media: los PDF se generan y leen desde el sistema de archivos,
+      # por eso se monta un disco persistente en la carpeta media.
+    disks:
+      - name: media
+        mountPath: media
+        sizeGB: 1
+
+# Base de datos PostgreSQL; Render inyecta DATABASE_URL en el servicio.
+databases:
+  - name: uh-postgres
+    databaseName: uh_db
+    user: uh_user
+    plan: free                 # las DB gratuitas se borran tras 90 días de inactividad
