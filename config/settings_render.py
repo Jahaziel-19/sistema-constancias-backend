@@ -186,6 +186,11 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    # En producción: solo JSON. El DRF browsable API (formularios HTML) queda
+    # deshabilitado para no exponer la interfaz de exploración de la API.
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+    ),
 }
 
 SIMPLE_JWT = {
