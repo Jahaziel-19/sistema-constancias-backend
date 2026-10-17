@@ -42,8 +42,10 @@ class AlumnoSerializer(serializers.ModelSerializer):
         ]
 
     def get_nivel_actual(self, obj):
-        t = obj.trayectorias.filter(es_actual=True).first()
-        return t.nivel_actual if t else ""
+        for t in getattr(obj, "trayectorias", []).all() if hasattr(obj, "trayectorias") else []:
+            if getattr(t, "es_actual", False):
+                return t.nivel_actual
+        return ""
 
 
 class TrayectoriaAcademicaSerializer(serializers.ModelSerializer):
